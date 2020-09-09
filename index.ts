@@ -18,34 +18,37 @@ import { catchEm } from './lib/utility';
  * @param enableConsoleLogging Enable console logging
  */
 export function mosaic(
-    inputImagePath: string,
-    tilesDirectory?: string,
-    cellWidth?: number, 
-    cellHeight?: number, 
-    columns?: number, 
-    rows?: number,
-    thumbsDirectoryFromRead?: string,
-    thumbsDirectoryToWrite?: string,
-    enableConsoleLogging: boolean = true
+  inputImagePath: string,
+  tilesDirectory?: string,
+  cellWidth?: number,
+  cellHeight?: number,
+  columns?: number,
+  rows?: number,
+  thumbsDirectoryFromRead?: string,
+  thumbsDirectoryToWrite?: string,
+  enableConsoleLogging: boolean = true
 ) {
-    const _generateMosaic = async() => {
-        
-        let [err, img] = await catchEm( JimpImage.read( inputImagePath ) );
-        if( err ) {
-            console.error(err);
-        }
-        else {
-            let image: Image = new JimpImage( img );
-            let mosaicImage = 
-                new MosaicImage( image, tilesDirectory, cellWidth, cellHeight, columns, rows, thumbsDirectoryFromRead, thumbsDirectoryToWrite, enableConsoleLogging );
-            let [err, _] = await catchEm( mosaicImage.generate() );
-            if( err ) {
-                console.error(err);
-            }
-        }
-    };
-    
-    _generateMosaic();
+  const _generateMosaic = async () => {
+
+    let [err, img] = await catchEm(JimpImage.read(inputImagePath));
+    if (err) {
+      console.error("Read file", err);
+      throw err;
+    }
+    else {
+      let image: Image = new JimpImage(img);
+      let mosaicImage =
+        new MosaicImage(image, tilesDirectory, cellWidth, cellHeight, columns, rows, thumbsDirectoryFromRead, thumbsDirectoryToWrite, enableConsoleLogging);
+      let [err, outputLocation] = await catchEm(mosaicImage.generate());
+      if (err) {
+        console.error("generate", err);
+        throw err;
+      }
+      return outputLocation
+    }
+  };
+
+  return _generateMosaic();
 }
 
 export { Image, JimpImage, MosaicImage, RGB, CONFIG };
